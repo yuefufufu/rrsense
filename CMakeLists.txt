@@ -13,6 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
 find_package(PCL 1.1 REQUIRED)
 
 catkin_package(
+  
 )
 
 
@@ -35,5 +36,3 @@ add_executable(tutorial3 src/tutorial3.cpp)
 target_link_libraries(tutorial3 ${catkin_LIBRARIES})
 add_executable(tutorial4 src/tutorial4.cpp)
 target_link_libraries(tutorial4 ${catkin_LIBRARIES})
-add_executable(heimen src/heimen.cpp)
-target_link_libraries(heimen ${catkin_LIBRARIES})
