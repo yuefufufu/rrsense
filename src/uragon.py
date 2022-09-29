@@ -1,7 +1,10 @@
 #! /usr/bin/env python3
+
 import pyrealsense2 as rs
 import numpy as np
 import cv2
+import rospy
+from geometry_msgs.msg import Twist
 
 # ストリーム(Color/Depth)の設定
 config = rs.config()
@@ -33,7 +36,7 @@ try:
         img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) 
         
         # 閾値の設定
-        threshold = 40
+        threshold = 70
     
         # 二値化(閾値を超えた画素を255にする。)
         ret, img_thresh = cv2.threshold(img_gray, threshold, 255, cv2.THRESH_BINARY)
@@ -49,15 +52,33 @@ try:
 
         #輪郭線を描く
         img_contour = cv2.drawContours(img, contours, -1, (120, 255, 0), 2)
+        
+        
+        try:
+               rows, cols = img_contour.shape[:2]
+               [vx, vy, x, y] = cv2.fitLine(contours[0], cv2.DIST_L2, 0, 0.01, 0.01)
+               lefty = int((-x*vy/vx)+y)
+               righty = int(((cols-x)*vy/vx)+y)
+               img_contour = cv2.line(img, (cols-1, righty), (0, lefty), (0, 0, 255), 2)
 
-        rows, cols = img_contour.shape[:2]
-        [vx, vy, x, y] = cv2.fitLine(contours[0], cv2.DIST_L2, 0, 0.01, 0.01)
-        lefty = int((-x*vy/vx)+y)
-        righty = int(((cols-x)*vy/vx)+y)
-        img_contour = cv2.line(img, (cols-1, righty), (0, lefty), (0, 0, 255), 2)
-
-        uragon = 320 - x[0]
-
+               uragon = 320 - x[0]
+        
+        except:
+               pass
+        
+        rospy.init_node("uragon")
+        pub = rospy.Publisher("uragon", Twist, queue_size=50)
+        
+        uraran = Twist()
+        uraran.linear.x = -0.1
+        uraran.linear.y = 0.0
+        uraran.linear.z = 0.0
+        uraran.angular.x = 0.0
+        uraran.angular.y = 0.0
+        uraran.angular.z = uragon/300
+        
+        pub.publish(uraran)
+        
         print(uragon)
 
 
@@ -70,7 +91,6 @@ try:
             break
 
         
-
 
 
 finally:
